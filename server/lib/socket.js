@@ -48,10 +48,10 @@ function initSocket(socket, clientType, usersSocket) {
 
       switch (type) {
         case 'robot':
-          receiver = robots.get(data.to);
+          receiver = users.get(data.to);
           break;
         default:
-          receiver = users.get(data.to);
+          receiver = robots.get(data.to);
       }
 
       if (receiver) {
