@@ -49,10 +49,11 @@ class App extends Component {
   }
 
   startCall(isCaller, friendID, config) {
-    console.log('startCall', config)
+    console.log('startCall ', isCaller, friendID, config)
     this.config = config;
     this.pc = new PeerConnection(friendID)
       .on('localStream', (src) => {
+        console.log('localStream ', src)
         const newState = { callWindow: 'active', localSrc: src };
         if (!isCaller) newState.callModal = '';
         this.setState(newState);
@@ -62,12 +63,14 @@ class App extends Component {
   }
 
   rejectCall() {
+    console.log('rejectCall')
     const { callFrom } = this.state;
     socket.emit('end', { to: callFrom });
     this.setState({ callModal: '' });
   }
 
   endCall(isStarter) {
+    console.log('endCall', isStarter)
     if (_.isFunction(this.pc.stop)) {
       this.pc.stop(isStarter);
     }

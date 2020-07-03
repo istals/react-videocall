@@ -12,7 +12,6 @@ class App extends Component {
     this.state = {
       clientId: '',
       callWindow: '',
-      callModal: '',
       callFrom: '',
       localSrc: null,
       peerSrc: null,
@@ -27,7 +26,7 @@ class App extends Component {
 
   componentDidMount() {
     socket
-      .on('update_robot_list', ({ robots: robotsList}) => {
+      .on('update_robot_list', ({ robots: robotsList }) => {
         this.setState({ robotsList });
       })
       .on('init', ({ id: clientId, robots: robotsList }) => {
@@ -53,7 +52,6 @@ class App extends Component {
     this.pc = new PeerConnection(robotID)
       .on('localStream', (src) => {
         const newState = { callWindow: 'active', localSrc: src };
-        if (!isCaller) newState.callModal = '';
         this.setState(newState);
       })
       .on('peerStream', (src) => this.setState({ peerSrc: src }))
@@ -74,7 +72,6 @@ class App extends Component {
     this.config = null;
     this.setState({
       callWindow: '',
-      callModal: '',
       localSrc: null,
       peerSrc: null
     });
