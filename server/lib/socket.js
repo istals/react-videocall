@@ -8,26 +8,29 @@ const robots = require('./robots');
  */
 function initSocket(socket, clientType, usersSocket) {
   let id;
+  let type;
   socket
     .on('init', async () => {
       switch (clientType) {
         case 'robot':
+          type = 'robot';
           id = await robots.create(socket);
           socket.emit('init', { id });
           usersSocket.emit('update_robot_list', { robots: robots.list() });
           break;
         default:
+          type = 'user';
           id = await users.create(socket);
           socket.emit('init', { id, robots: robots.list() });
       }
-
-      console.log(robots.list())
-      console.log(users.list())
+      console.log(`${id} init `);
+      console.log(robots.list());
+      console.log(users.list());
     })
     .on('request', (data) => {
-      console.log('request ', data)
       let receiver = null;
-      switch (data.type) {
+      console.log(`${id} request `, data.to);
+      switch (type) {
         case 'robot':
           receiver = users.get(data.to);
           break;
@@ -40,15 +43,17 @@ function initSocket(socket, clientType, usersSocket) {
       }
     })
     .on('call', (data) => {
-      console.log('call ', data)
+      console.log(`${id} call `, data.to);
       let receiver = null;
-      switch (data.type) {
+
+      switch (type) {
         case 'robot':
           receiver = robots.get(data.to);
           break;
         default:
           receiver = users.get(data.to);
       }
+
       if (receiver) {
         receiver.emit('call', { ...data, from: id });
       } else {
@@ -56,21 +61,20 @@ function initSocket(socket, clientType, usersSocket) {
       }
     })
     .on('end', (data) => {
-      console.log('end ', data)
+      console.log(`${id} end `, data.to);
       const receiver = users.get(data.to);
       if (receiver) {
         receiver.emit('end');
       }
     })
     .on('disconnect', () => {
-      switch (clientType) {
+      console.log(id, ' disconnected');
+      switch (type) {
         case 'robot':
           robots.remove(id);
-          console.log(id, 'robot disconnected');
           break;
         default:
           users.remove(id);
-          console.log(id, 'client disconnected');
       }
     });
 }

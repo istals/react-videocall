@@ -48,7 +48,7 @@ class PeerConnection extends Emitter {
    */
   stop(isStarter) {
     if (isStarter) {
-      socket.emit('end', { to: this.clientID, type: 'robot' });
+      socket.emit('end', { to: this.clientID });
     }
     this.mediaDevice.stop();
     this.pc.close();
@@ -73,7 +73,7 @@ class PeerConnection extends Emitter {
 
   getDescription(desc) {
     this.pc.setLocalDescription(desc);
-    socket.emit('call', { to: this.clientID, sdp: desc, type: 'robot' });
+    socket.emit('call', { to: this.clientID, sdp: desc });
     return this;
   }
 

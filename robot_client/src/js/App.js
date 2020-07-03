@@ -33,10 +33,12 @@ class App extends Component {
         this.setState({ robotId });
       })
       .on('request', ({ from: callFrom }) => {
+        console.log('request from ', callFrom)
         const config = { audio: true, video: true };
-        this.startCallHandler(false, callFrom, config)
+        this.startCallHandler(false, callFrom, config);
       })
       .on('call', (data) => {
+        console.log('call ', data)
         if (data.sdp) {
           this.pc.setRemoteDescription(data.sdp);
           if (data.sdp.type === 'offer') this.pc.createAnswer();
@@ -47,6 +49,7 @@ class App extends Component {
   }
 
   startCall(isCaller, friendID, config) {
+    console.log('startCall', config)
     this.config = config;
     this.pc = new PeerConnection(friendID)
       .on('localStream', (src) => {

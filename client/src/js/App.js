@@ -48,7 +48,7 @@ class App extends Component {
   }
 
   startCall(isCaller, robotID, config) {
-    console.log(`startCall isCaller: ${isCaller}, robotId: ${robotID} `, config)
+    console.log(`startCall isCaller: ${isCaller}, robotId: ${robotID} `, config);
     this.config = config;
     this.pc = new PeerConnection(robotID)
       .on('localStream', (src) => {
