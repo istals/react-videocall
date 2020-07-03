@@ -7,19 +7,19 @@ const PC_CONFIG = { iceServers: [{ urls: ['stun:stun.l.google.com:19302'] }] };
 class PeerConnection extends Emitter {
   /**
      * Create a PeerConnection.
-     * @param {String} robotID - ID of the friend you want to call.
+     * @param {String} clientID - ID of the friend you want to call.
      */
-  constructor(robotID) {
+  constructor(clientID) {
     super();
     this.pc = new RTCPeerConnection(PC_CONFIG);
     this.pc.onicecandidate = (event) => socket.emit('call', {
-      to: this.robotID,
+      to: this.clientID,
       candidate: event.candidate
     });
     this.pc.ontrack = (event) => this.emit('peerStream', event.streams[0]);
 
     this.mediaDevice = new MediaDevice();
-    this.robotID = robotID;
+    this.clientID = clientID;
   }
 
   /**
@@ -34,7 +34,7 @@ class PeerConnection extends Emitter {
           this.pc.addTrack(track, stream);
         });
         this.emit('localStream', stream);
-        if (isCaller) socket.emit('request', { to: this.robotID });
+        if (isCaller) socket.emit('request', { to: this.clientID });
         else this.createOffer();
       })
       .start(config);
@@ -48,7 +48,7 @@ class PeerConnection extends Emitter {
    */
   stop(isStarter) {
     if (isStarter) {
-      socket.emit('end', { to: this.robotID });
+      socket.emit('end', { to: this.clientID, type: 'robot' });
     }
     this.mediaDevice.stop();
     this.pc.close();
@@ -73,7 +73,7 @@ class PeerConnection extends Emitter {
 
   getDescription(desc) {
     this.pc.setLocalDescription(desc);
-    socket.emit('call', { to: this.robotID, sdp: desc });
+    socket.emit('call', { to: this.clientID, sdp: desc, type: 'robot' });
     return this;
   }
 

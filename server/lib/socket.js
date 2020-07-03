@@ -26,14 +26,29 @@ function initSocket(socket, clientType, usersSocket) {
     })
     .on('request', (data) => {
       console.log('request ', data)
-      const receiver = robots.get(data.to);
+      let receiver = null;
+      switch (data.type) {
+        case 'robot':
+          receiver = users.get(data.to);
+          break;
+        default:
+          receiver = robots.get(data.to);
+      }
+
       if (receiver) {
         receiver.emit('request', { from: id });
       }
     })
     .on('call', (data) => {
       console.log('call ', data)
-      const receiver = users.get(data.to);
+      let receiver = null;
+      switch (data.type) {
+        case 'robot':
+          receiver = robots.get(data.to);
+          break;
+        default:
+          receiver = users.get(data.to);
+      }
       if (receiver) {
         receiver.emit('call', { ...data, from: id });
       } else {

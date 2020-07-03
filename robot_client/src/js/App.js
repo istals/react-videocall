@@ -34,7 +34,7 @@ class App extends Component {
       })
       .on('request', ({ from: callFrom }) => {
         const config = { audio: true, video: true };
-        this.startCallHandler(true, callFrom, config)
+        this.startCallHandler(false, callFrom, config)
       })
       .on('call', (data) => {
         if (data.sdp) {
