@@ -3,6 +3,7 @@ const haiku = require('./haiku');
 
 const users = {};
 
+
 // Random ID until the ID is not in use
 async function randomID() {
   let id = haiku();
@@ -18,7 +19,8 @@ exports.create = async (socket) => {
   users[id] = socket;
   return id;
 };
-
 exports.get = (id) => users[id];
-
 exports.remove = (id) => delete users[id];
+exports.list = () => {
+  return Object.keys(users);
+};

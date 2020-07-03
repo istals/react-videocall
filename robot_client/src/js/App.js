@@ -1,22 +1,23 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+
 import socket from './socket';
 import PeerConnection from './PeerConnection';
 import MainWindow from './MainWindow';
 import CallWindow from './CallWindow';
 import CallModal from './CallModal';
+import Log from './Log';
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      clientId: '',
+      robotId: '',
       callWindow: '',
       callModal: '',
       callFrom: '',
       localSrc: null,
-      peerSrc: null,
-      robotsList: []
+      peerSrc: null
     };
     this.pc = {};
     this.config = null;
@@ -27,15 +28,13 @@ class App extends Component {
 
   componentDidMount() {
     socket
-      .on('update_robot_list', ({ robots: robotsList}) => {
-        this.setState({ robotsList });
-      })
-      .on('init', ({ id: clientId, robots: robotsList }) => {
-        document.title = `${clientId} - VideoCall`;
-        this.setState({ clientId, robotsList });
+      .on('init', ({ id: robotId }) => {
+        document.title = `${robotId} - VideoCall`;
+        this.setState({ robotId });
       })
       .on('request', ({ from: callFrom }) => {
-        this.setState({ callModal: 'active', callFrom });
+        const config = { audio: true, video: true };
+        this.startCallHandler(true, callFrom, config)
       })
       .on('call', (data) => {
         if (data.sdp) {
@@ -47,10 +46,9 @@ class App extends Component {
       .emit('init');
   }
 
-  startCall(isCaller, robotID, config) {
-    console.log(`startCall isCaller: ${isCaller}, robotId: ${robotID} `, config)
+  startCall(isCaller, friendID, config) {
     this.config = config;
-    this.pc = new PeerConnection(robotID)
+    this.pc = new PeerConnection(friendID)
       .on('localStream', (src) => {
         const newState = { callWindow: 'active', localSrc: src };
         if (!isCaller) newState.callModal = '';
@@ -81,12 +79,11 @@ class App extends Component {
   }
 
   render() {
-    const { clientId, callFrom, callModal, callWindow, localSrc, peerSrc, robotsList } = this.state;
+    const { robotId, callFrom, callModal, callWindow, localSrc, peerSrc } = this.state;
     return (
       <div>
         <MainWindow
-          robotsList={robotsList}
-          clientId={clientId}
+          robotId={robotId}
           startCall={this.startCallHandler}
         />
         {!_.isEmpty(this.config) && (
