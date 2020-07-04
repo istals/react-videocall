@@ -26,6 +26,9 @@ function MainWindow({ startCall, clientId, robotsList }) {
             readOnly
           />
         </h3>
+        <h3>
+          Robots list:
+        </h3>
       </div>
       <div>
         {robotsList.map((value, index) => {
@@ -33,15 +36,15 @@ function MainWindow({ startCall, clientId, robotsList }) {
           return (
             <div key={key}>
               {value}
-              <div>
+              <>
                 <button
                   type="button"
                   className="btn-action fa fa-video-camera"
                   onClick={callWithVideo(value, true)}
                 />
-              </div>
+              </>
             </div>
-          )
+          );
         })}
       </div>
     </div>

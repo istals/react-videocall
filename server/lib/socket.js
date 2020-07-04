@@ -6,7 +6,7 @@ const robots = require('./robots');
  * Initialize when a connection is made
  * @param {SocketIO.Socket} socket
  */
-function initSocket(socket, clientType, usersSocket) {
+function initSocket(socket, clientType, usersSocket, robotSocket) {
   let id;
   let type;
   socket
@@ -71,24 +71,29 @@ function initSocket(socket, clientType, usersSocket) {
       console.log(id, ' disconnected');
       switch (type) {
         case 'robot':
+          usersSocket.emit('user_left', { id });
           robots.remove(id);
           break;
         default:
+          robotSocket.emit('user_left', { id });
           users.remove(id);
       }
     });
 }
 
 module.exports = (server) => {
-  let usersSocket = io({ path: '/bridge', serveClient: false })
+  const usersSocket = io({ path: '/bridge', serveClient: false });
+  const robotSocket = io({ path: '/robot_bridge', serveClient: false });
+
+  usersSocket
     .listen(server, { log: true })
     .on('connection', (socket) => {
-      initSocket(socket, 'client');
+      initSocket(socket, 'client', usersSocket, robotSocket);
     });
 
-  io({ path: '/robot_bridge', serveClient: false })
+  robotSocket
     .listen(server, { log: true })
     .on('connection', (socket) => {
-      initSocket(socket, 'robot', usersSocket);
+      initSocket(socket, 'robot', usersSocket, robotSocket);
     });
 };

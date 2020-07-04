@@ -1,8 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import JoyStick from 'react-joystick';
 
 const getButtonClass = (icon, enabled) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
+
+const joyOptions = {
+  mode: 'semi',
+  catchDistance: 150,
+  color: 'white'
+};
+
+const containerStyle = {
+  position: 'relative',
+  height: '150px',
+  width: '100%'
+};
 
 function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall }) {
   const peerVideo = useRef(null);
@@ -37,10 +50,31 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall })
     }
   };
 
+  const managerListener = (manager) => {
+    manager
+      .on('move', (e, stick) => {
+        console.log('I moved!', stick)
+      })
+      .on('end', () => {
+        console.log('I ended!')
+      });
+  };
+
   return (
     <div className={classnames('call-window', status)}>
-      <video id="peerVideo" ref={peerVideo} autoPlay />
       <video id="localVideo" ref={localVideo} autoPlay muted />
+      <div className="video-outer-overlay">
+        <div className="video-inner-container">
+          <div className="video-overlay">
+            <JoyStick
+              joyOptions={joyOptions}
+              containerStyle={containerStyle}
+              managerListener={managerListener}
+            />
+          </div>
+          <video id="peerVideo" ref={peerVideo} autoPlay />
+        </div>
+      </div>
       <div className="video-control">
         <button
           key="btnVideo"

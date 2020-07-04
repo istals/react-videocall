@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+
 import socket from './socket';
 import PeerConnection from './PeerConnection';
 import MainWindow from './MainWindow';
 import CallWindow from './CallWindow';
 import CallModal from './CallModal';
+
 
 class App extends Component {
   constructor() {
@@ -17,6 +19,7 @@ class App extends Component {
       peerSrc: null,
       robotsList: []
     };
+
     this.pc = {};
     this.config = null;
     this.startCallHandler = this.startCall.bind(this);
@@ -42,7 +45,15 @@ class App extends Component {
           if (data.sdp.type === 'offer') this.pc.createAnswer();
         } else this.pc.addIceCandidate(data.candidate);
       })
-      .on('end', this.endCall.bind(this, false))
+      .on('end', () => this.endCallHandler(false))
+      .on('user_left', (data) => {
+        const { callFrom } = this.state;
+        console.log(`user_left ${callFrom} `, data.id)
+        if (callFrom === data.id) {
+          console.log('emit endCall')
+          this.endCallHandler(false);
+        }
+      })
       .emit('init');
   }
 
@@ -65,9 +76,11 @@ class App extends Component {
   }
 
   endCall(isStarter) {
+    console.log('endcall')
     if (_.isFunction(this.pc.stop)) {
       this.pc.stop(isStarter);
     }
+
     this.pc = {};
     this.config = null;
     this.setState({
