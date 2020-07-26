@@ -27,6 +27,14 @@ function initSocket(socket, clientType, usersSocket, robotSocket) {
       console.log(robots.list());
       console.log(users.list());
     })
+    .on('update_motors', (data) => {
+      let receiver = null;
+      console.log(`${id} update motors `, data.to);
+      receiver = robots.get(data.to);
+      if (receiver) {
+        receiver.emit('update_motors', { from: id, protocol: data.protocol});
+      }
+    })
     .on('request', (data) => {
       let receiver = null;
       console.log(`${id} request `, data.to);

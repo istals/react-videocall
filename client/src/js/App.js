@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
+import _, { random } from 'lodash';
 
 import socket from './socket';
 import PeerConnection from './PeerConnection';
@@ -15,16 +15,75 @@ class App extends Component {
       clientId: '',
       callWindow: '',
       callFrom: '',
+      callTo: '',
       localSrc: null,
       peerSrc: null,
-      robotsList: []
+      robotsList: [],
     };
+
+    this.sendData = false;
+    this.protocol = [
+      111,   // CRC - C
+      0,   // sector 1 - 4
+      0,   // degree 0 - 90,
+      0,   // distance from center,
+      90,  // h slider position 0 - 180
+      90,  // v slider position 0 - 180,
+      45,
+      7,
+      0
+    ]
+
+    this.moveStepper = false
+    this.stepperKeysDown = false;
+    this.stepperJoystickDown = false
 
     this.pc = {};
     this.config = null;
     this.startCallHandler = this.startCall.bind(this);
     this.endCallHandler = this.endCall.bind(this);
     this.rejectCallHandler = this.rejectCall.bind(this);
+
+    this.updateProtocolHandler = this.updateProtocol.bind(this);
+    this.sendProtocolHandler = this.sendProtocol.bind(this);
+    this.updateStateHandler = this.updateState.bind(this);
+    this.updateStepperMoveHandler = this.updateStepperMove.bind(this);
+  }
+
+  updateStepperMove(status, controler) {
+    switch(controler) {
+      case 0:
+        this.stepperJoystickDown = true;
+        break
+      case 1:
+        this.stepperKeysDown = true;
+        break
+    }
+    this.moveStepper = status
+
+    console.log(this.protocol)
+  }
+
+  updateState(value) {
+    this.sendData = value
+  }
+
+  updateProtocol(key, value) {
+    this.protocol[key] = value
+  }
+
+  sendProtocol() {
+    // setInterval(() => {
+    //   const { callTo, sendData } = this.state;
+    //   let data = {
+    //     to: callTo,
+    //     protocol: new Uint8Array(this.protocol)
+    //   }
+    //   if (sendData) {
+    //     console.log('send protocol ', data)
+    //     socket.emit('update_motors', data)
+    //   }
+    // }, 10)
   }
 
   componentDidMount() {
@@ -55,6 +114,29 @@ class App extends Component {
         }
       })
       .emit('init');
+
+      setInterval(() => {
+        const { callTo } = this.state;
+
+        // if (this.stepperJoystickDown) this.sendData = true;
+        // if (this.stepperKeysDown) this.sendData = true;
+
+        if(this.moveStepper) {
+          this.sendData = true;
+        }
+
+        if (this.sendData) {
+          let crc_sum = this.protocol[0] + this.protocol[this.protocol.length - 2]
+          this.protocol[this.protocol.length - 1] = crc_sum
+          let data = {
+            to: callTo,
+            protocol: new Uint32Array(this.protocol)
+          }
+          console.log('send protocol ', data)
+          socket.emit('update_motors', data)
+          this.updateState(false);
+        }
+      }, 10)
   }
 
   startCall(isCaller, robotID, config) {
@@ -62,10 +144,10 @@ class App extends Component {
     this.config = config;
     this.pc = new PeerConnection(robotID)
       .on('localStream', (src) => {
-        const newState = { callWindow: 'active', localSrc: src };
+        const newState = { callWindow: 'active', localSrc: src, callTo: robotID};
         this.setState(newState);
       })
-      .on('peerStream', (src) => this.setState({ peerSrc: src }))
+      .on('peerStream', (src) => this.setState({ peerSrc: src, callTo: robotID }))
       .start(isCaller, config);
   }
 
@@ -85,6 +167,7 @@ class App extends Component {
     this.config = null;
     this.setState({
       callWindow: '',
+      callTo: '',
       localSrc: null,
       peerSrc: null
     });
@@ -107,6 +190,9 @@ class App extends Component {
             config={this.config}
             mediaDevice={this.pc.mediaDevice}
             endCall={this.endCallHandler}
+            updateProtocol={this.updateProtocolHandler}
+            updateState={this.updateStateHandler}
+            updateStepperMove={this.updateStepperMoveHandler}
           />
         ) }
         <CallModal

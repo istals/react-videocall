@@ -13,9 +13,7 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall })
   useEffect(() => {
     if (peerVideo.current && peerSrc) peerVideo.current.srcObject = peerSrc;
     if (localVideo.current && localSrc) localVideo.current.srcObject = localSrc;
-  });
 
-  useEffect(() => {
     if (mediaDevice) {
       mediaDevice.toggle('Video', video);
       mediaDevice.toggle('Audio', audio);
@@ -40,7 +38,7 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall })
   return (
     <div className={classnames('call-window', status)}>
       <video id="peerVideo" ref={peerVideo} autoPlay />
-      <video id="localVideo" ref={localVideo} autoPlay muted />
+      {/* <video id="localVideo" ref={localVideo} autoPlay muted /> */}
       <div className="video-control">
         <button
           key="btnVideo"

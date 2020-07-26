@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 function MainWindow({ startCall, clientId, robotsList }) {
-  const [friendID, setFriendID] = useState(null);
-
   /**
    * Start the call with or without video
    * @param {Boolean} video
