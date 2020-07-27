@@ -96,6 +96,7 @@ class App extends Component {
         this.setState({ clientId, robotsList });
       })
       .on('request', ({ from: callFrom }) => {
+        console.log(`request callFrom: `, callFrom)
         this.setState({ callModal: 'active', callFrom });
       })
       .on('call', (data) => {
@@ -106,9 +107,9 @@ class App extends Component {
       })
       .on('end', () => this.endCallHandler(false))
       .on('user_left', (data) => {
-        const { callFrom } = this.state;
+        const { callFrom, callTo } = this.state;
         console.log(`user_left ${callFrom} `, data)
-        if (callFrom === data.id) {
+        if (callFrom === data.id || callTo == data.id) {
           console.log('emit endCall')
           this.endCallHandler(false);
         }
@@ -195,12 +196,14 @@ class App extends Component {
             updateStepperMove={this.updateStepperMoveHandler}
           />
         ) }
-        <CallModal
-          status={callModal}
-          startCall={this.startCallHandler}
-          rejectCall={this.rejectCallHandler}
-          callFrom={callFrom}
-        />
+        { !_.isEmpty(callModal) && (
+          <CallModal
+            status={callModal}
+            startCall={this.startCallHandler}
+            rejectCall={this.rejectCallHandler}
+            callFrom={callFrom}
+          />
+        )}
       </div>
     );
   }
