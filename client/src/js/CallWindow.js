@@ -150,8 +150,8 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
     handleStepper(e);
 
     if (active) {
-      // updateState(true);
-      // updateStepperMove(true);
+      updateState(true);
+      updateStepperMove(true);
     } else {
       updateStepperMove(false);
     }

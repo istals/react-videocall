@@ -68,9 +68,9 @@ class App extends Component {
 
   async handleBT() {
     this.BLEDevice = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: ['4fafc201-1fb5-459e-8fcc-c5c9c331914b']
-      // filters: [{services: ['4fafc201-1fb5-459e-8fcc-c5c9c331914b']}]
+      // acceptAllDevices: true,
+      optionalServices: ['4fafc201-1fb5-459e-8fcc-c5c9c331914b'],
+      filters: [{services: ['4fafc201-1fb5-459e-8fcc-c5c9c331914b']}]
     })
 
     if (this.BLEDevice) {

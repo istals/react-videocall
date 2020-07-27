@@ -107,7 +107,7 @@ class App extends Component {
       .on('end', () => this.endCallHandler(false))
       .on('user_left', (data) => {
         const { callFrom } = this.state;
-        console.log(`user_left ${callFrom} `, data.id)
+        console.log(`user_left ${callFrom} `, data)
         if (callFrom === data.id) {
           console.log('emit endCall')
           this.endCallHandler(false);
