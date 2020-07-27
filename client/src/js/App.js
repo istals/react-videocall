@@ -132,7 +132,7 @@ class App extends Component {
             to: callTo,
             protocol: new Uint32Array(this.protocol)
           }
-          console.log('send protocol ', data)
+          // console.log('send protocol ', data)
           socket.emit('update_motors', data)
           this.updateState(false);
         }

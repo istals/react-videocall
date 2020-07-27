@@ -68,7 +68,8 @@ class App extends Component {
 
   async handleBT() {
     this.BLEDevice = await navigator.bluetooth.requestDevice({
-      filters: [{services: ['4fafc201-1fb5-459e-8fcc-c5c9c331914b']}]
+      acceptAllDevices: true
+      // filters: [{services: ['4fafc201-1fb5-459e-8fcc-c5c9c331914b']}]
     })
 
     if (this.BLEDevice) {
@@ -89,7 +90,7 @@ class App extends Component {
       console.log('> Bluetooth Device connected. Try disconnect it now.');
       const service = await server.getPrimaryService('4fafc201-1fb5-459e-8fcc-c5c9c331914b');
 
-      console.log('Getting Heart Rate Control Point Characteristic...');
+      console.log('Getting Robot Control Point Characteristic...');
       this.BLECharestic = await service.getCharacteristic('beb5483e-36e1-4688-b7f5-ea07361b26a8');
     } catch(error) {
       console.log('Argh! ' + error);

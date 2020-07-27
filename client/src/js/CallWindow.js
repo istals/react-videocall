@@ -4,6 +4,21 @@ import classnames from 'classnames';
 import JoyStick from 'react-joystick';
 import Slider from '@material-ui/core/Slider';
 import { GlobalHotKeys } from "react-hotkeys";
+import * as Mousetrap from 'mousetrap';
+
+
+
+let SC_RIGHT_CODE = 'KeyD';
+let SC_RIGHT_ACTIVE = false;
+
+let SC_UP_CODE = 'KeyW';
+let SC_UP_ACTIVE = false;
+
+let SC_LEFT_CODE = 'KeyA';
+let SC_LEFT_ACTIVE = false
+
+let SC_DOWN_CODE = 'KeyS';
+let SC_DOWN_ACTIVE = false;
 
 
 const getButtonClass = (icon, enabled) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
@@ -60,18 +75,6 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
     }
   };
 
-  let SC_RIGHT_CODE = 'KeyD';
-  let SC_RIGHT_ACTIVE = false;
-
-  let SC_UP_CODE = 'KeyW';
-  let SC_UP_ACTIVE = false;
-
-  let SC_LEFT_CODE = 'KeyA';
-  let SC_LEFT_ACTIVE = false
-
-  let SC_DOWN_CODE = 'KeyS';
-  let SC_DOWN_ACTIVE = false;
-
   const keyMap = {
     RIGHT_PRESS:  { name: 'Stepper Right Press', sequence: "d", action: 'keydown'},
     RIGHT_REALEASE:  { name: 'Stepper Right Release', sequence: "d", action: 'keyup'},
@@ -85,17 +88,17 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
     DOWN_PRESS: { name: 'Stepper Left Press', sequence: "s", action: 'keydown'},
     DOWN_RELEASE: { name: 'Stepper Left Release', sequence: "s", action: 'keyup'},
 
-    UP_RIGHT_PRESS:  { name: 'Stepper UP Right Press', sequence: "w+d", action: 'keydown'},
-    UP_RIGHT_REALEASE:  { name: 'Stepper UP Right Release', sequence: "w+d", action: 'keyup'},
+    // UP_RIGHT_PRESS:  { name: 'Stepper UP Right Press', sequence: "w+d", action: 'keydown'},
+    // UP_RIGHT_REALEASE:  { name: 'Stepper UP Right Release', sequence: "w+d", action: 'keyup'},
 
-    UP_LEFT_PRESS:  { name: 'Stepper UP Left Press', sequence: "w+a", action: 'keydown'},
-    UP_LEFT_REALEASE:  { name: 'Stepper UP Left Release', sequence: "w+a", action: 'keyup'},
+    // UP_LEFT_PRESS:  { name: 'Stepper UP Left Press', sequence: "w+a", action: 'keydown'},
+    // UP_LEFT_REALEASE:  { name: 'Stepper UP Left Release', sequence: "w+a", action: 'keyup'},
 
-    DOWN_LEFT_PRESS:  { name: 'Stepper DOWN Left Press', sequence: "s+a", action: 'keydown'},
-    DOWN_LEFT_REALEASE:  { name: 'Stepper DOWN Left Release', sequence: "s+a", action: 'keyup'},
+    // DOWN_LEFT_PRESS:  { name: 'Stepper DOWN Left Press', sequence: "s+a", action: 'keydown'},
+    // DOWN_LEFT_REALEASE:  { name: 'Stepper DOWN Left Release', sequence: "s+a", action: 'keyup'},
 
-    DOWN_RIGHT_PRESS:  { name: 'Stepper DOWN Right Press', sequence: "s+d", action: 'keydown'},
-    DOWN_RIGHT_REALEASE:  { name: 'Stepper DOWN Right Release', sequence: "s+d", action: 'keyup'}
+    // DOWN_RIGHT_PRESS:  { name: 'Stepper DOWN Right Press', sequence: "s+d", action: 'keydown'},
+    // DOWN_RIGHT_REALEASE:  { name: 'Stepper DOWN Right Release', sequence: "s+d", action: 'keyup'}
   };
 
   const handlers = {
@@ -126,7 +129,7 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
 
 
   const stepperHotKeyHandler = (e) => {
-    console.log(e)
+    // console.log(e)
     let active = (e.type == "keydown") ? true:false;
 
     switch (e.code) {
@@ -144,18 +147,18 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
         break;
     }
 
-    handleStepper();
+    handleStepper(e);
 
     if (active) {
-      updateState(true);
-      updateStepperMove(true);
+      // updateState(true);
+      // updateStepperMove(true);
     } else {
       updateStepperMove(false);
     }
   }
 
-  const handleStepper = () => {
-    console.log(`UP: ${SC_UP_ACTIVE} DOWN: ${SC_DOWN_ACTIVE} LEFT: ${SC_LEFT_ACTIVE} RIGHT ${SC_RIGHT_ACTIVE}`)
+  const handleStepper = (e) => {
+    console.log(`code ${e.code} type: ${e.type} UP: ${SC_UP_ACTIVE} DOWN: ${SC_DOWN_ACTIVE} LEFT: ${SC_LEFT_ACTIVE} RIGHT ${SC_RIGHT_ACTIVE}`)
     if (SC_UP_ACTIVE) {
       // if (SC_RIGHT_ACTIVE) {
       //   upRightHandler()
