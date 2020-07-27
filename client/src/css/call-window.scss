@@ -12,6 +12,7 @@
 	&.active {
 		opacity: 1;
 		z-index: auto;
+		overflow: hidden;
 
 		.video-control {
 			z-index: auto;
@@ -81,18 +82,16 @@
 
 	#localVideo {
 		position: absolute;
-	}
-
-	#localVideo {
-		bottom: 0;
-		right: 0;
+		top: 0;
+		left: 0;
 		width: 20%;
 		height: 20%;
+		z-index: 999999;
 	}
 
 	#peerVideo {
 		width: 100vw;
-		height: 100%;
+   		height: 100vh;
 	}
 }
 
