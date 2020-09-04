@@ -8,6 +8,39 @@ import CallWindow from './CallWindow';
 import CallModal from './CallModal';
 
 
+
+class PROTOCOL_MAP {
+  BUF_CRC_C = 0
+  BUF_STEPPER_SECTOR = 1
+  BUF_STEPPER_ANGLE = 2
+  BUF_STEPPER_SPEED = 3
+  BUF_H_SERVO_ANGLE = 4
+  BUF_V_SERVO_ANGLE = 5
+  BUF_HEAD_V_SERVO_ANGLE = 6
+  BUF_PIN22_STATE = 7
+  BUF_PIN23_STATE = 8
+  BUF_PIN24_STATE = 9
+  BUF_PIN25_STATE = 10
+  BUF_PIN26_STATE = 11
+  BUF_PIN27_STATE = 12
+  BUF_PIN28_STATE = 13
+  BUF_PIN29_STATE = 14
+  BUF_PIN30_STATE = 15
+  BUF_PIN31_STATE = 16
+  BUF_PIN32_STATE = 17
+  BUF_PIN33_STATE = 18
+  BUF_PIN34_STATE = 19
+  BUF_PIN35_STATE = 20
+  BUF_PIN36_STATE = 21
+  BUF_PIN37_STATE = 22
+  BUF_PIN38_STATE = 23
+  BUF_PIN39_STATE = 24
+  BUF_PIN40_STATE = 25
+  BUF_CRC_R = 26
+  BUF_CRC_SUM = 27
+}
+
+
 class App extends Component {
   constructor() {
     super();
@@ -23,13 +56,32 @@ class App extends Component {
 
     this.sendData = false;
     this.protocol = [
-      111,   // CRC - C
-      0,   // sector 1 - 4
-      0,   // degree 0 - 90,
-      0,   // distance from center,
-      90,  // h slider position 0 - 180
-      90,  // v slider position 0 - 180,
-      45,
+      111,   //0 CRC - C
+      0,     //1 sector 1 - 4
+      0,     //2 degree 0 - 90,
+      0,     //3 distance from center,
+      90,    //4 h slider position 0 - 180
+      90,    //5 v slider position 0 - 180,
+      45,    //6 v slider position 0 - 180,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
       7,
       0
     ]
