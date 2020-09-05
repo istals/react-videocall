@@ -6,39 +6,7 @@ import PeerConnection from './PeerConnection';
 import MainWindow from './MainWindow';
 import CallWindow from './CallWindow';
 import CallModal from './CallModal';
-
-
-
-const PROTOCOL_MAP = {
-  'BUF_CRC_C': 0,
-  'BUF_STEPPER_SECTOR': 1,
-  'BUF_STEPPER_ANGLE': 2,
-  'BUF_STEPPER_SPEED': 3,
-  'BUF_H_SERVO_ANGLE': 4,
-  'BUF_V_SERVO_ANGLE': 5,
-  'BUF_HEAD_V_SERVO_ANGLE': 6,
-  'BUF_PIN22_STATE': 7,
-  'BUF_PIN23_STATE': 8,
-  'BUF_PIN24_STATE': 9,
-  'BUF_PIN25_STATE': 10,
-  'BUF_PIN26_STATE': 11,
-  'BUF_PIN27_STATE': 12,
-  'BUF_PIN28_STATE': 13,
-  'BUF_PIN29_STATE': 14,
-  'BUF_PIN30_STATE': 15,
-  'BUF_PIN31_STATE': 16,
-  'BUF_PIN32_STATE': 17,
-  'BUF_PIN33_STATE': 18,
-  'BUF_PIN34_STATE': 19,
-  'BUF_PIN35_STATE': 20,
-  'BUF_PIN36_STATE': 21,
-  'BUF_PIN37_STATE': 22,
-  'BUF_PIN38_STATE': 23,
-  'BUF_PIN39_STATE': 24,
-  'BUF_PIN40_STATE': 25,
-  'BUF_CRC_R': 26,
-  'BUF_CRC_SUM': 27
-}
+import { PROTOCOL_MAP } from './Protocol';
 
 
 class App extends Component {
@@ -86,6 +54,7 @@ class App extends Component {
       0
     ]
 
+    this.updatePinStates = 1000
     this.moveStepper = false
     this.stepperKeysDown = false;
     this.stepperJoystickDown = false
@@ -96,6 +65,7 @@ class App extends Component {
     this.endCallHandler = this.endCall.bind(this);
     this.rejectCallHandler = this.rejectCall.bind(this);
 
+    this.updateProtocolFromToHandler = this.updateProtocolFromTo.bind(this)
     this.updateProtocolHandler = this.updateProtocol.bind(this);
     this.sendProtocolHandler = this.sendProtocol.bind(this);
     this.updateStateHandler = this.updateState.bind(this);
@@ -122,6 +92,15 @@ class App extends Component {
 
   updateProtocol(key, value) {
     this.protocol[key] = value
+  }
+
+  updateProtocolFromTo(values) {
+    console.log('updateProtocolFromTo', values)
+    Object.keys(values).forEach((val, index) => {
+      this.protocol[val] = values[val]
+    })
+
+    console.log('updateProtocolFromTo protocol', this.protocol)
   }
 
   sendProtocol() {
@@ -174,6 +153,14 @@ class App extends Component {
         // if (this.stepperJoystickDown) this.sendData = true;
         // if (this.stepperKeysDown) this.sendData = true;
 
+        let pinStates = this.protocol.slice(PROTOCOL_MAP.BUF_PIN22_STATE, PROTOCOL_MAP.BUF_PIN40_STATE)
+        // console.log('pinStates', pinStates)
+        if (this.updatePinStates == 0 && pinStates.some((state) =>  state == 1)) {
+          this.updateState(true);
+          console.log('pinActive')
+          this.updatePinStates = 1000
+        }
+
         if(this.moveStepper) {
           this.sendData = true;
         }
@@ -181,6 +168,7 @@ class App extends Component {
         if (this.sendData) {
           let crc_sum = this.protocol[0] + this.protocol[this.protocol.length - 2]
           this.protocol[this.protocol.length - 1] = crc_sum
+          console.log(this.protocol)
           let data = {
             to: callTo,
             protocol: new Uint32Array(this.protocol)
@@ -188,7 +176,10 @@ class App extends Component {
           // console.log('send protocol ', data)
           socket.emit('update_motors', data)
           this.updateState(false);
+          this.updatePinStates = 1000
         }
+
+        this.updatePinStates = this.updatePinStates - 10
       }, 10)
   }
 
@@ -244,6 +235,7 @@ class App extends Component {
             mediaDevice={this.pc.mediaDevice}
             endCall={this.endCallHandler}
             updateProtocol={this.updateProtocolHandler}
+            updateProtocolFromTo={this.updateProtocolFromToHandler}
             updateState={this.updateStateHandler}
             updateStepperMove={this.updateStepperMoveHandler}
           />

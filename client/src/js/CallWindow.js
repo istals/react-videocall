@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import JoyStick from 'react-joystick';
-import Slider from '@material-ui/core/Slider';
-import { GlobalHotKeys } from "react-hotkeys";
-import * as Mousetrap from 'mousetrap';
+import { PROTOCOL_MAP } from './Protocol'
+import Controls from './Controls'
 
 
 
@@ -23,27 +21,8 @@ let SC_DOWN_ACTIVE = false;
 
 const getButtonClass = (icon, enabled) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
 
-const joyOptions = {
-  mode: 'semi',
-  catchDistance: 28,
-  color: 'white'
-};
 
-const containerStyle = {
-  position: 'relative',
-  height: '150px',
-  width: '150px'
-};
-
-const containerStyle2 = {
-  position: 'absolute',
-  height: '150px',
-  width: '150px',
-  bottom: 0
-};
-
-
-function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, updateProtocol,  updateStepperMove, updateState}) {
+function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, updateProtocol, updateProtocolFromTo, updateStepperMove, updateState}) {
   const peerVideo = useRef(null);
   const localVideo = useRef(null);
   let previousDegree = 0;
@@ -59,6 +38,7 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
       mediaDevice.toggle('Audio', audio);
     }
   });
+
 
   /**
    * Turn on/off a media device
@@ -113,18 +93,6 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
 
     DOWN_PRESS: event => stepperHotKeyHandler(event),
     DOWN_RELEASE: event => stepperHotKeyHandler(event),
-
-    // UP_RIGHT_PRESS: event => stepperHotKeyHandler(event),
-    // UP_RIGHT_REALEASE: event => stepperHotKeyHandler(event),
-
-    // UP_LEFT_PRESS: event => stepperHotKeyHandler(event),
-    // UP_LEFT_REALEASE: event => stepperHotKeyHandler(event),
-
-    // DOWN_LEFT_PRESS: event => stepperHotKeyHandler(event),
-    // DOWN_LEFT_REALEASE: event => stepperHotKeyHandler(event),
-
-    // DOWN_RIGHT_PRESS: event => stepperHotKeyHandler(event),
-    // DOWN_RIGHT_REALEASE: event => stepperHotKeyHandler(event)
   };
 
 
@@ -160,40 +128,21 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
   const handleStepper = (e) => {
     console.log(`code ${e.code} type: ${e.type} UP: ${SC_UP_ACTIVE} DOWN: ${SC_DOWN_ACTIVE} LEFT: ${SC_LEFT_ACTIVE} RIGHT ${SC_RIGHT_ACTIVE}`)
     if (SC_UP_ACTIVE) {
-      // if (SC_RIGHT_ACTIVE) {
-      //   upRightHandler()
-      // } else if (SC_LEFT_ACTIVE) {
-      //   upLeftHandler()
-      // } else {
-      //   updateProtocol(1, 2)
-      //   updateProtocol(2, 0)
-      //   updateProtocol(3, 50)
-      // }
-      updateProtocol(1, 2)
-      updateProtocol(2, 0)
-      updateProtocol(3, 50)
-
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_SECTOR, 2)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_ANGLE, 0)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_SPEED, 50)
     } else if (SC_DOWN_ACTIVE) {
-      // if (SC_RIGHT_ACTIVE) {
-      //   downRightHandler()
-      // } else if (SC_LEFT_ACTIVE) {
-      //   downLeftHandler()
-      // } else {
-      //   updateProtocol(1, 4)
-      //   updateProtocol(2, 0)
-      //   updateProtocol(3, 50)
-      // }
-      updateProtocol(1, 4)
-      updateProtocol(2, 0)
-      updateProtocol(3, 50)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_SECTOR, 4)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_ANGLE, 0)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_SPEED, 50)
     } else if (SC_RIGHT_ACTIVE) {
-      updateProtocol(1, 1)
-      updateProtocol(2, 0)
-      updateProtocol(3, 50)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_SECTOR, 1)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_ANGLE, 0)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_SPEED, 50)
     } else if (SC_LEFT_ACTIVE) {
-      updateProtocol(1, 2)
-      updateProtocol(2, 90)
-      updateProtocol(3, 50)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_SECTOR, 2)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_ANGLE, 90)
+      updateProtocol(PROTOCOL_MAP.BUF_STEPPER_SPEED, 50)
     }
   }
 
@@ -226,105 +175,17 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, status, endCall, u
     updateProtocol(3, 50)
   }
 
-
-
-  const managerListener = (manager) => {
-    manager
-      .on('move', (e, stick) => {
-
-        let sector = parseInt(stick.angle.degree) / 90 + 1;
-        updateProtocol(1, parseInt(sector))
-        updateProtocol(2, parseInt(stick.angle.degree % 90))
-        updateProtocol(3, parseInt(stick.distance))
-
-        updateStepperMove(true);
-
-        let diff = Math.abs(previousDegree - stick.angle.degree);
-        if (diff > 5) {
-          previousDegree = stick.angle.degree
-          updateState(true);
-        }
-      })
-      .on('end', () => {
-        updateState(false)
-        updateProtocol(1, 0)
-        updateProtocol(2, 0)
-        updateProtocol(3, 0)
-        updateStepperMove(false);
-        console.log('I ended!')
-      });
-  };
-
-  const hSliderListener = (e, value) => {
-    updateProtocol(4, parseInt(value))
-    updateState(true);
-  };
-
-  const vSliderListener = (e, value) => {
-    updateProtocol(5, parseInt(value))
-    updateState(true);
-  };
-
-  const headSliderListener = (e, value) => {
-    updateProtocol(6, 90 - parseInt(value))
-    updateState(true);
-  };
-
   return (
       <div className={classnames('call-window', status)}>
-        <GlobalHotKeys keyMap={keyMap} handlers={handlers} />
         <video id="localVideo" ref={localVideo} autoPlay muted />
         <div className="video-outer-overlay">
           <div className="video-inner-container">
-            <div className="video-overlay">
-              <div className="joystick" style={containerStyle2}>
-                <JoyStick
-                  joyOptions={joyOptions}
-                  containerStyle={containerStyle}
-                  managerListener={managerListener}
-                />
-
-              </div>
-              <div className="h-slider">
-                <Slider
-                  defaultValue={90}
-                  aria-labelledby="discrete-slider"
-                  valueLabelDisplay="auto"
-                  marks
-                  min={0}
-                  max={180}
-                  step={10}
-                  onChange={hSliderListener}
-                />
-              </div>
-              <div className="v-slider">
-                <Slider
-                  orientation="vertical"
-                  defaultValue={90}
-                  aria-labelledby="vertical-slider"
-                  valueLabelDisplay="auto"
-                  marks
-                  min={0}
-                  max={180}
-                  step={10}
-                  onChange={vSliderListener}
-                />
-              </div>
-              <div className="head-slider">
-                <Slider
-                  orientation="vertical"
-                  defaultValue={45}
-                  aria-labelledby="vertical-slider"
-                  valueLabelDisplay="auto"
-                  track="inverted"
-                  marks
-                  min={0}
-                  max={90}
-                  step={5}
-                  onChange={headSliderListener}
-                />
-              </div>
-            </div>
+            <Controls
+              updateState={updateState}
+              updateStepperMove={updateStepperMove}
+              updateProtocol={updateProtocol}
+              updateProtocolFromTo={updateProtocolFromTo}
+            />
             <video id="peerVideo" ref={peerVideo} autoPlay />
           </div>
         </div>
@@ -360,8 +221,10 @@ CallWindow.propTypes = {
     video: PropTypes.bool.isRequired
   }).isRequired,
   mediaDevice: PropTypes.object, // eslint-disable-line
+
   endCall: PropTypes.func.isRequired,
   updateProtocol: PropTypes.func.isRequired,
+  updateProtocolFromTo: PropTypes.func.isRequired,
   updateState: PropTypes.func.isRequired,
   updateStepperMove: PropTypes.func.isRequired
 };
