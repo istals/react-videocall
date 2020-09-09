@@ -31,25 +31,25 @@ class App extends Component {
       90,    //4 h slider position 0 - 180
       90,    //5 v slider position 0 - 180,
       45,    //6 v slider position 0 - 180,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
       7,
       0
     ]
@@ -95,12 +95,14 @@ class App extends Component {
   }
 
   updateProtocolFromTo(values) {
-    console.log('updateProtocolFromTo', values)
+    let changed = false;
     Object.keys(values).forEach((val, index) => {
-      this.protocol[val] = values[val]
+      if (this.protocol[val] != values[val]) {
+        this.protocol[val] = values[val]
+        changed = true
+      }
     })
-
-    console.log('updateProtocolFromTo protocol', this.protocol)
+    return changed
   }
 
   sendProtocol() {

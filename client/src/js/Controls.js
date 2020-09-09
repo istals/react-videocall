@@ -80,7 +80,7 @@ function Controls({updateState, updateStepperMove, updateProtocol, updateProtoco
     Object.keys(KEY_MAP).forEach((key, index) => {
       let key_name = KEY_MAP[key].value
       let protocol_index = KEY_MAP[key].index
-      pinStates[protocol_index] = keys[key_name] ? 1: 0
+      pinStates[protocol_index] = keys[key_name] ? 2: 1
     })
     updateProtocolFromTo(pinStates);
     updateState(true);
