@@ -157,7 +157,7 @@ class App extends Component {
 
         let pinStates = this.protocol.slice(PROTOCOL_MAP.BUF_PIN22_STATE, PROTOCOL_MAP.BUF_PIN40_STATE)
         // console.log('pinStates', pinStates)
-        if (this.updatePinStates == 0 && pinStates.some((state) =>  state == 1)) {
+        if (this.updatePinStates == 0 && pinStates.some((state) =>  state == 2)) {
           this.updateState(true);
           console.log('pinActive')
           this.updatePinStates = 1000
